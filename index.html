@@ -333,7 +333,8 @@
 
   /* ---------- Corsa ---------- */
   function parseTime(s){
-    var p = String(s).trim().split(':').map(function(x){ return x.trim(); });
+    s = String(s).trim().replace(/[.,;\s]+/g, ':'); if(/^\d+$/.test(s)) s = fmtDigits(s);
+    var p = s.split(':').map(function(x){ return x.trim(); });
     if(p.length < 2 || p.length > 3 || p.some(function(x){ return !/^\d+$/.test(x); })) return null;
     var h = 0, m, sec;
     if(p.length === 2){ m = +p[0]; sec = +p[1]; } else { h = +p[0]; m = +p[1]; sec = +p[2]; if(m > 59) return null; }
@@ -447,11 +448,11 @@
     var dow = new Date().getDay(), type = r ? r.type : (dow === 3 ? 'Ripetute' : dow === 0 ? 'Fondo facile' : 'Fondo facile');
     ctx = {type:'run', id: r ? r.id : null};
     openSheet(
-      '<h2>'+(r ? 'Modifica corsa' : 'Nuova corsa')+'</h2><p class="sub">tempo come mm:ss oppure h:mm:ss</p>'+
+      '<h2>'+(r ? 'Modifica corsa' : 'Nuova corsa')+'</h2><p class="sub">per il tempo scrivi solo i numeri: 5230 diventa 52:30</p>'+
       '<div class="fields"><div class="row2"><div class="f"><label for="f-date">Data</label><input id="f-date" type="date" value="'+(r ? r.date : iso(new Date()))+'"></div>'+
       '<div class="f"><label for="f-type">Tipo</label><select id="f-type">'+RUN_TYPES.map(function(t){ return '<option'+(t === type ? ' selected' : '')+'>'+t+'</option>'; }).join('')+'</select></div></div>'+
       '<div class="row2"><div class="f"><label for="f-km">Distanza (km)</label><input id="f-km" inputmode="decimal" autocomplete="off" value="'+(r ? esc(fmt(r.km)) : '')+'"></div>'+
-      '<div class="f"><label for="f-time">Tempo</label><input id="f-time" inputmode="numeric" autocomplete="off" placeholder="52:30" value="'+(r ? fmtTime(r.sec) : '')+'"></div></div>'+
+      '<div class="f"><label for="f-time">Tempo</label><input id="f-time" inputmode="numeric" maxlength="8" autocomplete="off" placeholder="52:30" value="'+(r ? fmtTime(r.sec) : '')+'"></div></div>'+
       '<div class="f"><label for="f-note">Nota</label><input id="f-note" autocomplete="off" placeholder="polpacci, sensazioni, percorso…" value="'+(r && r.note ? esc(r.note) : '')+'"></div></div>'+
       '<p class="err" id="err" role="alert"></p>'+
       '<div class="actions"><button type="button" class="ghost" data-act="close">Chiudi</button><button type="button" class="primary" data-act="save-run">Salva</button></div>'+
@@ -509,6 +510,16 @@
     }
   });
   document.addEventListener('keydown', function(ev){ if(ev.key === 'Escape' && !$('#sheet').hidden) closeSheet(); });
+  /* la tastiera numerica dell'iPhone non ha i due punti: li inserisco io */
+  function fmtDigits(d){
+    d = String(d).replace(/\D/g, '').slice(0, 6);
+    if(d.length <= 2) return d;
+    if(d.length <= 4) return d.slice(0, -2) + ':' + d.slice(-2);
+    return d.slice(0, -4) + ':' + d.slice(-4, -2) + ':' + d.slice(-2);
+  }
+  document.addEventListener('input', function(ev){
+    if(ev.target && ev.target.id === 'f-time') ev.target.value = fmtDigits(ev.target.value);
+  });
 
   function renderAll(){ renderRace(); renderGym(); renderRun(); $('#status').textContent = baseStatus(); }
 
