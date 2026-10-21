@@ -51,18 +51,19 @@
   .top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
   .top h1{margin:0;font-family:var(--display);font-weight:800;font-size:34px;line-height:1;letter-spacing:.01em;text-transform:uppercase;text-wrap:balance}
   .status{font-size:12px;color:var(--mute);margin-top:4px;min-height:16px}
-  .race{display:flex;align-items:baseline;gap:8px;background:var(--ink);color:var(--bg);padding:8px 12px;border-radius:10px;flex:none}
-  .race b{font-family:var(--display);font-size:34px;line-height:.9;font-weight:800}
-  .race span{font-size:12px;line-height:1.15;max-width:78px}
+  .race{display:flex;flex-direction:column;align-items:center;gap:3px;background:var(--ink);color:var(--bg);padding:8px 12px 9px;border-radius:10px;flex:none;text-align:center}
+  .race b{font-family:var(--display);font-size:38px;line-height:.9;font-weight:800}
+  .race span{font-size:12px;line-height:1.2;white-space:nowrap}
 
   /* settimana */
   .week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
-  .day{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:7px 0 8px;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0}
+  .day{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:7px 2px 8px;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0;overflow:hidden}
   .day span{font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
   .day b{font-family:var(--display);font-size:20px;line-height:1;font-weight:700;white-space:nowrap}
-  .day.run b{font-size:13px;font-family:var(--body);font-weight:600;color:var(--mute);padding-top:4px}
+  .day b{max-width:100%;text-align:center}
+  .day.runday b{font-size:12px;font-family:var(--body);font-weight:600;letter-spacing:0;color:var(--mute);padding-top:5px}
   .day.rest b{color:var(--line)}
-  .day.today{border-color:var(--ink);border-width:2px;padding:6px 0 7px}
+  .day.today{border-color:var(--ink);border-width:2px;padding:6px 1px 7px}
   .day.sel{background:var(--accent);border-color:var(--accent)}
   .day.sel span,.day.sel b{color:var(--accent-ink)}
   .day:disabled{cursor:default}
@@ -292,7 +293,7 @@
     var days = Math.round((RACE - parseISO(iso(new Date()))) / 864e5);
     if(days < 0){ el.hidden = true; return; }
     el.hidden = false;
-    el.innerHTML = '<b class="num">'+days+'</b><span>'+(days === 1 ? 'giorno' : 'giorni')+' ai 10 km del 13 dic</span>';
+    el.innerHTML = '<b class="num">'+days+'</b><span>'+(days === 1 ? 'giorno' : 'giorni')+' ai 10 km<br>13 dicembre</span>';
   }
 
   /* ---------- Palestra ---------- */
@@ -301,7 +302,7 @@
     var today = iso(new Date()), dow = new Date().getDay();
     var strip = WEEK.map(function(w){
       var isToday = dow === w[0], k = w[2], gym = k && WORKOUTS[k];
-      var cls = 'day' + (isToday ? ' today' : '') + (gym && S.sel === k ? ' sel' : '') + (k && !gym ? ' run' : '') + (!k ? ' rest' : '');
+      var cls = 'day' + (isToday ? ' today' : '') + (gym && S.sel === k ? ' sel' : '') + (k && !gym ? ' runday' : '') + (!k ? ' rest' : '');
       var attr = gym ? 'data-sel="'+k+'"' : (k ? 'data-go="run"' : 'disabled');
       return '<button type="button" class="'+cls+'" '+attr+'><span>'+w[1]+'</span><b>'+(k || '–')+'</b></button>';
     }).join('');
